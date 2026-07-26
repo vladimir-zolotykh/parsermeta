@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
-from typing import Any
+from typing import get_type_hints, get_origin, get_args, Any
+from functools import wraps
 from enum import Enum
+import inspect
 import re
 
 Sym = Enum(
@@ -25,12 +27,25 @@ Sym = Enum(
 
 
 def ensure_types(func):
-    return func
+    sig = inspect.signature(func)
+    hints = get_type_hints(func)
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        bound = sig.bind(*args, **kwargs)
+        bound.apply_defaults()
+        for name, parm in bound.arguments.items():
+            if name in hints:
+                assert isinstance(name, get_args(hints[name]))
+        res = func(*args, **kwargs)
+        return res
+
+    return wrapper
 
 
 class Token:
     @ensure_types
-    def __init__(self, sym: Sym, val: float | str):
+    def __init__(self, sym: Sym, val: float | str = ""):
         self.sym = sym
         self.val = val
 
