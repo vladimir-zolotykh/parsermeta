@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
-from typing import get_type_hints, get_origin, get_args, Any
+from typing import get_type_hints, get_origin, get_args, Union
+from types import UnionType
 from functools import wraps
 from enum import Enum
 import inspect
@@ -30,13 +31,18 @@ def ensure_types(func):
     sig = inspect.signature(func)
     hints = get_type_hints(func)
 
+    def validate(val, hint):
+        if get_origin(hint) in (Union, UnionType):
+            return isinstance(val, get_args(hint))
+        assert isinstance(val, hint)
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         bound = sig.bind(*args, **kwargs)
         bound.apply_defaults()
-        for name, parm in bound.arguments.items():
+        for name, val in bound.arguments.items():
             if name in hints:
-                assert isinstance(name, get_args(hints[name]))
+                validate(val, hints[name])
         res = func(*args, **kwargs)
         return res
 
