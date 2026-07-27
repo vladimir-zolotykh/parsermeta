@@ -41,16 +41,14 @@ class Parser:
         res: N.Node = self.term()
         while (op := self.token) and op in (PLUS, MINUS):
             self._consume()
-            right: N.Node = self.term()
-            res = new_binop(op, res, right)
+            res = new_binop(op, res, self.term())
         return res
 
     def term(self) -> N.Node:
         res: N.Node = self.factor()
         while (op := self.token) and op in (MUL, DIV):
             self._consume()
-            right: N.Node = self.factor()
-            res = new_binop(op, res, right)
+            res = new_binop(op, res, self.factor())
         return res
 
     def factor(self) -> N.Node:
