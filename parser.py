@@ -13,6 +13,10 @@ LPAREN = S.Sym.LPAREN
 RPAREN = S.Sym.RPAREN
 
 
+def new_binop(op: S.Sym, left: N.Node, right: N.Node) -> N.BinOp:
+    return {PLUS: N.Plus, MINUS: N.Minus, MUL: N.Mul, DIV: N.Div}[op.sym](left, right)
+
+
 class Parser:
     def __init__(self):
         self.token: S.Token | None = S.Token | None
@@ -38,7 +42,7 @@ class Parser:
         while (op := self.token) and op in (PLUS, MINUS):
             self._consume()
             right: N.Node = self.term()
-            res: N.Node = N.Plus(res, right) if op == PLUS else N.Minus(res, right)
+            res = new_binop(op, res, right)
         return res
 
     def term(self) -> N.Node:
@@ -46,7 +50,7 @@ class Parser:
         while (op := self.token) and op in (MUL, DIV):
             self._consume()
             right: N.Node = self.factor()
-            res: N.Node = N.Mul(res, right) if op == MUL else N.Div(res, right)
+            res = new_binop(op, res, right)
         return res
 
     def factor(self) -> N.Node:
