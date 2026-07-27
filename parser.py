@@ -18,7 +18,7 @@ class Parser:
         self.token: S.Token | None = S.Token | None
         self.tokens: Iterator[S.Token] | None = None
 
-    def _adnance(self) -> S.Token | None:
+    def _advance(self) -> S.Token | None:
         try:
             self.token = next(self.tokens)
         except StopIteration:
@@ -38,7 +38,7 @@ class Parser:
         while (op := self.token) and op in (PLUS, MINUS):
             self._consume()
             right: N.Node = self.term()
-            res: N.Node = S.Plus(res, right) if op == PLUS else S.Minus(res, right)
+            res: N.Node = N.Plus(res, right) if op == PLUS else N.Minus(res, right)
         return res
 
     def term(self) -> N.Node:
@@ -46,7 +46,7 @@ class Parser:
         while (op := self.token) and op in (MUL, DIV):
             self._consume()
             right: N.Node = self.factor()
-            res: N.Node = S.Mul(res, right) if op == MUL else S.Div(res, right)
+            res: N.Node = N.Mul(res, right) if op == MUL else N.Div(res, right)
         return res
 
     def factor(self) -> N.Node:
@@ -56,8 +56,8 @@ class Parser:
             res = self.expr()
             self._expect(RPAREN)
         else:
-            res = N.Num(tok)
-            self._adnance()
+            res = N.Num(float(tok.val))
+            self._advance()
         return res
 
     def parse(self, sexpr: str):
