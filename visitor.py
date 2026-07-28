@@ -13,7 +13,7 @@ class Method:
 
     def register(self, func):
         sig = inspect.signature(func)
-        typ = (parm.annotation for _, parm in sig.parameters.items())[1:]
+        typ = tuple(parm.annotation for _, parm in sig.parameters.items())[1:]
         self.methods[typ] = func
 
     def __get__(self, instance, owner=None):
@@ -22,7 +22,7 @@ class Method:
         return types.MethodType(self, instance)
 
     def __call__(self, *args, **kwargs):
-        typ = (type(a) for a in args)[1:]
+        typ = tuple(type(a) for a in args)[1:]
         return self.methods[typ](*args, **kwargs)
 
 
