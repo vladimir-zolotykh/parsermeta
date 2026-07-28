@@ -3,6 +3,7 @@
 # PYTHON_ARGCOMPLETE_OK
 import types
 import inspect
+import pytest
 import node as N
 from parser import Parser
 
@@ -57,7 +58,22 @@ class Visitor(metaclass=MultiMeta):
         return self.visit(n.left) / self.visit(n.right)
 
 
+@pytest.mark.parametrize(
+    ("sexpr", "expected"),
+    [
+        ("2 + 3", 5.0),
+        ("5 / 2", 2.5),
+        ("2 + (3 * 4) - 5", 9.0),
+        ("2 + (3 * 4) + 5", 19.0),
+    ],
+)
+def test_visitor(sexpr, expected):
+    assert Visitor().visit(Parser().parse(sexpr)) == expected
+
+
 if __name__ == "__main__":
-    sexpr = "2 + (3 * 4) + 5"
+    # sexpr = "2 + (3 * 4) + 5"
+    sexpr = "5 / 2"
     n = Parser().parse(sexpr)
+    print(f"{n = }")
     print(Visitor().visit(n))
