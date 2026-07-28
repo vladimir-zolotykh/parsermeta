@@ -36,7 +36,7 @@ class MultiDict(dict):
 
 class MultiMeta(type):
     @classmethod
-    def __prepare__(name, bases, ns):
+    def __prepare__(mcls, name, bases, /, **ns):
         return MultiDict()
 
 
